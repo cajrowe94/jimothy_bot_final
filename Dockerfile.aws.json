@@ -1,0 +1,11 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "cajrowe94/jimothy_bot_final",
+  },
+  "Ports": [
+    {
+      "ContainerPort": 8080
+    }
+  ]
+}
