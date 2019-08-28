@@ -58,18 +58,12 @@ var woeIds = [
 	'2514815' //D.C.
 ];
 
-// var chosenOne; //var to hold the chosen user to tweet at
-
-
 /*----------------------------------------------------------------*/
 /*------------------INITIALIZE CONNECTION WITH API----------------*/
 /*----------------------------------------------------------------*/
-
 console.log("THE BOT IS STARTING.");
-
 //import the twit package
 var Twit  = require('twit');
-
 //make a new Twit object with API keys
 var T = new Twit({
   consumer_key:         'CysQ4rrHhg3hOkTF23zNi5VZg',
@@ -79,67 +73,41 @@ var T = new Twit({
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
   strictSSL:            true,     // optional - requires SSL certificates to be valid.
 })
-
 /*----------------------------------------------------------------*/
 /*-----------------------MAIN WORKING AREA------------------------*/
 /*----------------------------------------------------------------*/
-
 populateTrends(woeIds[getRandomInt(0, woeIds.length-1)]); //populate trends array
-
 setInterval(function(){
-
 	getTrends(woeIds[getRandomInt(0, woeIds.length-1)]); //get trends every ___ seconds
-
-	// chosenTrend = laTrends[getRandomInt(0, laTrends.length-1)].name; //get a random trend from list
-
-	// while(chosenTrend.substring(0, 1) == '#'){ //keep choosing one until it doesn't contain a hashtag
-	// 	chosenTrend = laTrends[getRandomInt(0, laTrends.length-1)].name;
-	// }
-
-	
-	
 	console.log("\n********");
 	console.log(chosenTrend);
 	console.log("********\n");
-
-	
-	 //send the chosen trend to get an image
-	
-
-}, 7200000);
-
-
-
-
-
-
-
+}, 10000);
 /*----------------------------------------------------------------*/
 /*------------------------GET TOP 50 TRENDS-----------------------*/
 /*----------------------------------------------------------------*/
 
 function populateTrends(woeID){
-
 	T.get('trends/place', {id: woeID}, function (err, data, response) { //get trends with WOEID of Los Angeles
-		    var tweets = data; //assign received data into tweets var
+		    if (err) console.log(err);
+				else var tweets = data;
+
 		    JSON.stringify(tweets, undefined, 2); //if you dont do this it will look like ----> [Object]
 		    laTrends = tweets[0].trends; //give the top 50 trends to laTrends var
 
 		    chosenTrend = laTrends[getRandomInt(0, laTrends.length-1)].name;
 		    while(chosenTrend.substring(0, 1) == '#'){ //keep choosing one until it doesn't contain a hashtag
-				chosenTrend = laTrends[getRandomInt(0, laTrends.length-1)].name;
-			}
+					chosenTrend = laTrends[getRandomInt(0, laTrends.length-1)].name;
+				}
+			console.log(chosenTrend);
 			getnewImage(chosenTrend);
 	});
-	
-}
 
+}
 /*----------------------------------------------------------------*/
 /*------------------------GET TOP 50 TRENDS-----------------------*/
 /*----------------------------------------------------------------*/
-
 function getTrends(woeID){
-
 	T.get('trends/place', {id: woeID}, function (err, data, response) { //get trends with WOEID of Los Angeles
 		    var tweets = data; //assign received data into tweets var
 		    JSON.stringify(tweets, undefined, 2); //if you dont do this it will look like ----> [Object]
@@ -151,15 +119,12 @@ function getTrends(woeID){
 			}
 			searchThis(chosenTrend, 10);
 	});
-	
 }
-
 /*----------------------------------------------------------------*/
 /*-----------------------POST A MEDIA TWEET-----------------------*/
 /*----------------------------------------------------------------*/
 
 function tweetThisMedia(text){ //posts a tweet with media attached
-
 b64content = fs.readFileSync('images/trendPic.jpg', { encoding: 'base64' });
 // first we must post the media to Twitter
 T.post('media/upload', { media_data: b64content }, function (err, data, response) {
@@ -181,16 +146,14 @@ T.post('media/upload', { media_data: b64content }, function (err, data, response
   })
 })
 }
-
 /*----------------------------------------------------------------*/
 /*-----------------------DOWNLOAD AN IMAGE------------------------*/
 /*----------------------------------------------------------------*/
-
-function saveImage(imageURL){ //send function an image URL     
+function saveImage(imageURL){ //send function an image URL
 	const options = {
 		url: imageURL,
 		dest: 'images/trendPic.jpg'} //path to save the image
-	 
+
 	download.image(options)
 	  .then(({ filename, image }) => {
 	    console.log('File saved to', filename);
@@ -200,48 +163,38 @@ function saveImage(imageURL){ //send function an image URL
 	    console.error(err)
 	  })
 }
-
 /*----------------------------------------------------------------*/
 /*---------------------------NEWS SEARCH--------------------------*/
 /*----------------------------------------------------------------*/
-
 function getNews(term){
 	unirest.get("https://contextualwebsearch-websearch-v1.p.mashape.com/api/Search/NewsSearchAPI?count=50&q="+term+"&autocorrect=true")
 	.header("X-Mashape-Key", "squIunOAmNmsh4W7HduHeUTxjtgCp10N0KnjsnEOfdX7ZUzakS")
 	.header("X-Mashape-Host", "contextualwebsearch-websearch-v1.p.mashape.com")
 	.end(function (result) {
 		news = result.body.value;
-		//console.log(news[getRandomInt(0, news.length-1)].title);
 		chosenNews = news[getRandomInt(0, news.length-1)].title;
 		formattedNews = chosenNews.replace("</b>", "");
 	});
 	saveImage(chosenPic);
 }
-
 /*----------------------------------------------------------------*/
 /*---------------------------IMAGE SEARCH-------------------------*/
 /*----------------------------------------------------------------*/
-
 function getnewImage(term){
-
 	unirest.get("https://contextualwebsearch-websearch-v1.p.mashape.com/api/Search/ImageSearchAPI?count=50&q=" + term + "&autoCorrect=false")
 	.header("X-Mashape-Key", "squIunOAmNmsh4W7HduHeUTxjtgCp10N0KnjsnEOfdX7ZUzakS")
 	.header("X-Mashape-Host", "contextualwebsearch-websearch-v1.p.mashape.com")
 	.end(function (result) {
 	  pics = result.body.value;
-	  //console.log(pics[getRandomInt(0, pics.length-1)].url);
 	  chosenPic = pics[getRandomInt(0, pics.length-1)].url;
-	  //return pics[getRandomInt(0, pics.length-1)].url;
 	  getNews(chosenTrend);
 	});
-	
+
 
 }
-
 /*----------------------------------------------------------------*/
 /*-----------------------SEARCH FOR TWEETS------------------------*/
 /*----------------------------------------------------------------*/
-
 function searchThis(keyword, num){ //parameters for the searchable keyword and how many you want printed
 	var term = keyword; //assign params to local variables
 	var number = num;
@@ -260,35 +213,25 @@ function searchThis(keyword, num){ //parameters for the searchable keyword and h
 		var tweets = data.statuses; //collect all the statuses in the returned JSON
 		for (var i = 0; i < tweets.length; i++){
 			var newString = ''; //string to hold the removed username
-			
+
 			if (tweets[i].text.includes('@')){ //probe the tweets for usernames
 				var n = tweets[i].text.indexOf('@'); //get index of the @
-			 
+
 				while (tweets[i].text.substring(n, n+1) != " " && tweets[i].text.substring(n, n+1) != ":"){ //add to the new string until you hit a space
 						newString+=tweets[i].text.substring(n, n+1);
 						n++;
 				}
 			}
-			
-			//newString.replace(':', '');
 			if(newString.substring(0, 1) == '@'){
 				userNames.push(newString);
 			}
-
-				//console.log(tweets[i].text);
 			}
-
-			//console.log("--------\n" + tweets[i].text); //display all the tweets
-
 		}
 		getnewImage(chosenTrend);
-		//for (var i = 0; i < userNames.length; i++) console.log(userNames[i]);
 }
-
 /*----------------------------------------------------------------*/
 /*----------------------------POST A TWEET------------------------*/
 /*----------------------------------------------------------------*/
-
 function tweetThis(text){ //call this function to tweet anything
 	var tweet = text; //assign parameter to tweet var
 
@@ -302,24 +245,13 @@ function tweetThis(text){ //call this function to tweet anything
 		err ? console.log(err) : console.log("Sucessfully tweeted."+'\n'+"Tweet: "+tweetText.status+'\n'+"-------------");
 	};
 }
-
 /*----------------------------------------------------------------*/
 /*----------------------------RANDOM FUNCTIONS--------------------*/
 /*----------------------------------------------------------------*/
-
 function getRandomInt(min, max){
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-            
+
 function getRandomFloat(min, max){
     return Math.random() * (max - min) + min;
 }
-
-
-
-
-
-
-
-
-

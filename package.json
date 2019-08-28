@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "fs": "0.0.1-security",
-    "get-json": "^1.0.0",
+    "get-json": "^1.0.1",
     "image-downloader": "^3.4.1",
     "jQuery": "file:node_modules/jquery",
     "jquery": "^3.3.1",
