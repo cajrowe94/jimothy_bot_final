@@ -18,7 +18,7 @@
     "fs": "0.0.1-security",
     "get-json": "^1.0.1",
     "image-downloader": "^3.4.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "twit": "^2.2.11",
     "unirest": "^0.6.0"
   }
